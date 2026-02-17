@@ -1,0 +1,22 @@
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# OS files
+.AppleDouble
+.LSOverride
+._*
+Thumbs.db
+Desktop.ini
