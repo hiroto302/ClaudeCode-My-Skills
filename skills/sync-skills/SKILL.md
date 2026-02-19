@@ -6,9 +6,37 @@ allowed-tools: Bash, Read, Write, Edit
 
 # Sync Skills
 
-`~/.claude/skills/` のスキルファイルをこのリポジトリの `skills/` に同期し、変更をGitコミットする。
+`~/.claude/skills/` のスキルファイルをリポジトリの `skills/` に同期し、変更をGitコミットする。
+
+**どのディレクトリからでも実行可能。** すべてのコマンドは設定ファイルから読み取ったリポジトリパスを使用する。
+
+## 設定ファイル
+
+パス: `~/.claude/skills/sync-skills/config`
+
+```
+REPO_DIR=/Users/yourname/path/to/ClaudeCode-My-Skills
+```
+
+- 各環境でリポジトリのクローン先が異なるため、設定ファイルでパスを管理する
+- このファイルは `.gitignore` に含まれており、各ユーザーが自分の環境に合わせて作成する
 
 ## ワークフロー
+
+### 0. 設定を読み込む
+
+スキル実行時、最初に `~/.claude/skills/sync-skills/config` を読み取り `REPO_DIR` を取得する。
+
+```bash
+cat ~/.claude/skills/sync-skills/config
+```
+
+**設定ファイルが存在しない場合:**
+1. ユーザーにリポジトリのパスを聞く（AskUserQuestion）
+2. 入力されたパスで `config` ファイルを作成する
+3. 作成後、ワークフローを続行する
+
+以降のすべてのコマンドで `$REPO_DIR` を使用する。git コマンドは `git -C $REPO_DIR` で実行する。
 
 ### 1. rsyncでスキルを同期する
 
@@ -19,7 +47,7 @@ rsync -av --delete \
   --exclude='.DS_Store' \
   --exclude='*.swp' \
   --exclude='.git' \
-  ~/.claude/skills/ ./skills/
+  ~/.claude/skills/ $REPO_DIR/skills/
 ```
 
 - `--delete` で削除されたスキルも反映する
@@ -28,9 +56,9 @@ rsync -av --delete \
 ### 2. 変更を検出する
 
 ```bash
-git status --short
-git diff
-git diff --cached
+git -C $REPO_DIR status --short
+git -C $REPO_DIR diff
+git -C $REPO_DIR diff --cached
 ```
 
 変更がなければ「スキルは最新です。同期する変更はありません。」と伝えて終了する。
@@ -67,7 +95,7 @@ git diff --cached
 
 ```bash
 # スキップされたスキルの変更を元に戻す
-git checkout -- skills/{スキップしたスキル名}/
+git -C $REPO_DIR checkout -- skills/{スキップしたスキル名}/
 ```
 
 選択されたスキルごとに個別のコミットを作成する（ステップ5-6をスキルごとに繰り返す）。
@@ -87,12 +115,12 @@ git checkout -- skills/{スキップしたスキル名}/
 
 ```bash
 # まとめてコミットの場合
-git add skills/
-git commit -m "<生成したメッセージ>"
+git -C $REPO_DIR add skills/
+git -C $REPO_DIR commit -m "<生成したメッセージ>"
 
 # 個別コミットの場合（スキルごと）
-git add skills/{スキル名}/
-git commit -m "<そのスキルのメッセージ>"
+git -C $REPO_DIR add skills/{スキル名}/
+git -C $REPO_DIR commit -m "<そのスキルのメッセージ>"
 ```
 
 ### 7. プッシュの確認
@@ -101,7 +129,7 @@ git commit -m "<そのスキルのメッセージ>"
 
 承認された場合のみ:
 ```bash
-git push origin main
+git -C $REPO_DIR push origin main
 ```
 
 拒否された場合はコミットだけで終了し、その旨を伝える。

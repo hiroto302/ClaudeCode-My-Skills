@@ -14,6 +14,9 @@
 .env.local
 .env.*.local
 
+# Skill config (environment-specific)
+skills/sync-skills/config
+
 # OS files
 .AppleDouble
 .LSOverride
