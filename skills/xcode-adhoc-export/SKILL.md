@@ -75,19 +75,21 @@ git rev-parse --abbrev-ref HEAD
 
 ### 1b. Ad Hoc プロビジョニングプロファイルを検出
 
-Team ID に一致する Ad Hoc プロファイルを `~/Library/MobileDevice/Provisioning Profiles/` から検索する:
+`references/find_profiles.sh` スクリプトを使って、有効な Ad Hoc プロファイルを検出する:
 
 ```bash
-# 各 .mobileprovision を調べ、Team ID が一致し、ProfileDistributionType が ADHOC のものを探す
-for f in ~/Library/MobileDevice/Provisioning\ Profiles/*.mobileprovision; do
-  security cms -D -i "$f" 2>/dev/null
-done
+bash ~/.claude/skills/xcode-adhoc-export/references/find_profiles.sh "{TEAM_ID}" "{BUNDLE_ID}"
 ```
 
-プロファイルの選択優先順:
-1. Bundle ID に完全一致するプロファイル
-2. ワイルドカード (`TeamID.*`) プロファイル
-3. 見つからない場合 → ユーザーにエラー表示して終了
+スクリプトの検出ロジック:
+1. `~/Library/MobileDevice/Provisioning Profiles/` の全 `.mobileprovision` をスキャン
+2. Team ID が一致し、Ad Hoc 配布タイプのものをフィルタリング
+3. **有効期限が現在時刻より未来のもののみ**を候補とする（期限切れは除外）
+4. Bundle ID 完全一致 → ワイルドカード の優先順で1つ選択
+
+出力形式: `PROFILE:{名前}|EXPIRE:{有効期限}|BUNDLE:{App ID}|TYPE:{exact|wildcard}`
+
+選択結果が見つからない場合はエラー終了する（exit 1）。
 
 **エラーハンドリング:**
 - workspace が見つからない場合 → エラーメッセージを表示して終了
