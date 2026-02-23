@@ -1,0 +1,73 @@
+{
+  "presets": {
+    "quick": {
+      "scene_threshold": 0.4,
+      "similarity_threshold": 0.9,
+      "scale": 0.25,
+      "quality": 10,
+      "description": "クイック - 最少フレーム・最低コスト"
+    },
+    "standard": {
+      "scene_threshold": 0.3,
+      "similarity_threshold": 0.85,
+      "scale": 0.3,
+      "quality": 8,
+      "description": "標準 - バランス重視"
+    },
+    "detailed": {
+      "scene_threshold": 0.2,
+      "similarity_threshold": 0.75,
+      "scale": 0.4,
+      "quality": 5,
+      "description": "詳細 - より多いフレーム・高品質"
+    },
+    "high_density": {
+      "scene_threshold": 0.15,
+      "similarity_threshold": 0.7,
+      "scale": 0.35,
+      "quality": 6,
+      "time_interval": 0.5,
+      "description": "高密度 - アニメーション・マイクロインタラクション向け"
+    }
+  },
+  "intent_categories": {
+    "ui_reproduction": {
+      "label": "UIの再現・実装",
+      "description": "この動画のようなUIを作って",
+      "recommended_mode": "scene",
+      "recommended_preset": "standard",
+      "analysis_focus": ["layout", "components", "colors", "typography", "spacing"]
+    },
+    "animation": {
+      "label": "アニメーション・トランジション",
+      "description": "この動きを再現して",
+      "recommended_mode": "time",
+      "recommended_preset": "detailed",
+      "recommended_interval": 0.5,
+      "analysis_focus": ["transition_type", "timing", "easing", "css_properties", "trigger"]
+    },
+    "error_fix": {
+      "label": "エラー・バグの修正",
+      "description": "この動画のエラーを直して",
+      "recommended_mode": "scene",
+      "recommended_preset": "standard",
+      "analysis_focus": ["error_message", "abnormal_behavior", "expected_vs_actual", "root_cause"]
+    },
+    "ui_flow": {
+      "label": "UIフロー・操作手順",
+      "description": "この操作フローを実装して",
+      "recommended_mode": "time",
+      "recommended_preset": "standard",
+      "recommended_interval": 3,
+      "analysis_focus": ["screen_state", "navigation", "user_action", "data_change", "routing"]
+    }
+  },
+  "defaults": {
+    "preset": "standard",
+    "filter_mode": "scene",
+    "time_interval": 5,
+    "model_for_cost": "opus"
+  },
+  "max_frames": 100,
+  "supported_formats": [".mov", ".mp4", ".avi", ".mkv", ".webm", ".m4v"]
+}
