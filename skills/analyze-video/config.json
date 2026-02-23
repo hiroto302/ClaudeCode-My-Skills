@@ -1,0 +1,33 @@
+{
+  "presets": {
+    "quick": {
+      "scene_threshold": 0.4,
+      "similarity_threshold": 0.9,
+      "scale": 0.25,
+      "quality": 10,
+      "description": "クイック概要 - 最少フレーム・最低コスト"
+    },
+    "standard": {
+      "scene_threshold": 0.3,
+      "similarity_threshold": 0.85,
+      "scale": 0.3,
+      "quality": 8,
+      "description": "標準分析 - バランス重視"
+    },
+    "detailed": {
+      "scene_threshold": 0.2,
+      "similarity_threshold": 0.75,
+      "scale": 0.4,
+      "quality": 5,
+      "description": "詳細分析 - より多いフレーム・高品質"
+    }
+  },
+  "defaults": {
+    "preset": "standard",
+    "filter_mode": "scene",
+    "time_interval": 5,
+    "model_for_cost": "opus"
+  },
+  "max_frames": 100,
+  "supported_formats": [".mov", ".mp4", ".avi", ".mkv", ".webm", ".m4v"]
+}
