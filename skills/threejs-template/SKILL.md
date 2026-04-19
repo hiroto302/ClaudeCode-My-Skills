@@ -9,57 +9,174 @@ allowed-tools: Bash, Write, Read, Edit
 
 # Three.js Template Skill
 
-Create a new Three.js project with pre-configured development environment using the latest Vite template.
-
-## Usage
-This skill creates a Three.js project by:
-1. Using `npm create vite@latest` to get the latest Vite vanilla template
-2. Adding Three.js-specific dependencies (three, gsap, lil-gui)
-3. Configuring Vite for Three.js development (GLSL support, asset handling)
+Create a new Three.js project using the latest Vite vanilla template as a base, then restructure and configure for Three.js development.
 
 ## Steps to Execute
 
-1. **Determine project name**:
-   - If `$ARGUMENTS` is provided, use it as the project name
-   - If not provided, use "threejs-project" as the default name
+### 1. Determine project name
+- If `$ARGUMENTS` is provided, use it as the project name
+- If not provided, use "threejs-project" as the default name
 
-2. **Create Vite project**:
-   ```bash
-   npm create vite@latest [project-name] -- --template vanilla
-   cd [project-name]
-   ```
+### 2. Check if directory already exists
+```bash
+[ -d "[project-name]" ] && echo "ERROR: Directory [project-name] already exists" && exit 1
+```
+- If the directory exists, **stop and inform the user**. Do not overwrite.
 
-3. **Restructure project for Three.js**:
-   - Create `static/` directory and move all static assets:
-     ```bash
-     mkdir -p static
-     mv public/* static/ 2>/dev/null || true
-     mv src/*.svg static/ 2>/dev/null || true
-     rmdir public 2>/dev/null || true
-     ```
-   - Move `index.html` from root to `src/` directory:
-     ```bash
-     mv index.html src/
-     ```
-   - Fix the script path in `src/index.html`:
-     - Change `<script type="module" src="/src/main.js"></script>`
-     - To `<script type="module" src="/main.js"></script>`
-     - This is necessary because vite.config.js sets `root: 'src/'`
-   - Fix import paths in `src/main.js` to use absolute paths:
-     - Change `import './style.css'` to `import '/style.css'`
-     - Change `import javascriptLogo from './javascript.svg'` to `import javascriptLogo from '/javascript.svg'`
-     - Change `import { setupCounter } from './counter.js'` to `import { setupCounter } from '/counter.js'`
-     - Keep `import viteLogo from '/vite.svg'` as is (already correct)
+### 3. Create Vite project
+```bash
+npm create vite@latest [project-name] -- --template vanilla
+```
 
-4. **Install Three.js dependencies**:
-   ```bash
-   npm install three gsap lil-gui
-   npm install -D vite-plugin-glsl vite-plugin-restart
-   ```
+### 4. Install base dependencies
+```bash
+cd [project-name]
+npm install
+```
 
-5. **Create vite.config.js** (overwrite if exists) with the following content:
+### 5. Restructure project
+Run the following commands in order:
+```bash
+# Create static/ and move public/ contents into it
+mkdir -p static
+mv public/* static/ 2>/dev/null || true
+rmdir public 2>/dev/null || true
 
-### vite.config.js (create this file)
+# Move index.html to src/
+mv index.html src/ 2>/dev/null || true
+
+# Remove unnecessary files (Vite demo assets)
+rm -rf src/assets 2>/dev/null || true
+rm -f src/counter.js 2>/dev/null || true
+
+# Remove unnecessary static files (Vite demo icons)
+rm -f static/favicon.svg static/icons.svg 2>/dev/null || true
+```
+
+### 6. Overwrite src/index.html
+Write the following content (replace whatever Vite generated):
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>[project-name]</title>
+  </head>
+  <body>
+    <canvas class="webgl"></canvas>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
+```
+- Note: `src="/main.js"` (not `/src/main.js`) because `root: 'src/'` in vite.config.js
+
+### 7. Overwrite src/style.css
+Write the following content (replace Vite's demo CSS):
+```css
+*
+{
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body
+{
+    overflow: hidden;
+}
+
+.webgl
+{
+    position: fixed;
+    top: 0;
+    left: 0;
+    outline: none;
+}
+```
+
+### 8. Overwrite src/main.js
+Write the following content (replace Vite's demo JS):
+```js
+import './style.css'
+import * as THREE from 'three'
+import gsap from 'gsap'
+import GUI from 'lil-gui'
+
+/**
+ * Debug
+ */
+const gui = new GUI()
+
+/**
+ * Scene
+ */
+const scene = new THREE.Scene()
+
+/**
+ * Object
+ */
+const geometry = new THREE.BoxGeometry(1, 1, 1)
+const material = new THREE.MeshBasicMaterial({ color: 0xff0000 })
+const mesh = new THREE.Mesh(geometry, material)
+scene.add(mesh)
+
+/**
+ * Sizes
+ */
+const sizes = {
+    width: window.innerWidth,
+    height: window.innerHeight
+}
+
+window.addEventListener('resize', () =>
+{
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
+
+    camera.aspect = sizes.width / sizes.height
+    camera.updateProjectionMatrix()
+
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+})
+
+/**
+ * Camera
+ */
+const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
+camera.position.z = 3
+scene.add(camera)
+
+/**
+ * Renderer
+ */
+const canvas = document.querySelector('canvas.webgl')
+const renderer = new THREE.WebGLRenderer({ canvas })
+renderer.setSize(sizes.width, sizes.height)
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+/**
+ * Animate
+ */
+const clock = new THREE.Clock()
+
+const tick = () =>
+{
+    const elapsedTime = clock.getElapsedTime()
+
+    mesh.rotation.y = elapsedTime
+
+    renderer.render(scene, camera)
+
+    window.requestAnimationFrame(tick)
+}
+
+tick()
+```
+
+### 9. Create vite.config.js
+Write at project root (`[project-name]/vite.config.js`):
 ```js
 import restart from 'vite-plugin-restart'
 import glsl from 'vite-plugin-glsl'
@@ -70,47 +187,75 @@ export default {
     base: './',
     server:
     {
-        host: true, // Open to local network and display URL
-        open: true  // Open to browser on server start
+        host: true,
+        open: true
     },
     build:
     {
-        outDir: '../dist', // Output in the dist/ folder ← Build ファイルの出力先を dist/ フォルダに変更
-        emptyOutDir: true, // Empty the folder first before building
-        sourcemap: true    // Add sourcemap for easier debugging
+        outDir: '../dist',
+        emptyOutDir: true,
+        sourcemap: true
     },
-    // Three.jsでよく使うアセット形式を追加 (例: 3Dモデル、HDR環境マップなど)
     assetsInclude: ['**/*.gltf', '**/*.glb', '**/*.hdr', '**/*.exr'],
-    // Plugins の追加
     plugins:
     [
-        restart({ restart: [ '../static/**', ] }), // Restart server on static file change
-        glsl() // Handle shader files
+        restart({ restart: [ '../static/**', ] }),
+        glsl()
     ]
 }
 ```
 
-6. **Display success message** with next steps:
-   ```
-   ✅ Three.js project created successfully!
+### 10. Install Three.js dependencies
+```bash
+npm install three gsap lil-gui
+npm install -D vite-plugin-glsl vite-plugin-restart
+```
 
-   Next steps:
-     cd [project-name]
-     npm run dev
+### 11. Display success message
+```
+Three.js project "[project-name]" created successfully!
 
-   Your project includes:
-   - Three.js (latest)
-   - GSAP for animations
-   - lil-gui for debugging
-   - GLSL shader support
-   - Vite for fast development
-   ```
+  cd [project-name]
+  npm run dev
+
+Project includes:
+  - Three.js + basic scene (camera, renderer, animated cube)
+  - GSAP for animations
+  - lil-gui for debugging
+  - GLSL shader support (vite-plugin-glsl)
+  - Vite (latest) for fast development
+
+Project structure:
+  [project-name]/
+  ├── src/
+  │   ├── index.html    (entry point)
+  │   ├── main.js       (Three.js scene)
+  │   └── style.css     (fullscreen canvas)
+  ├── static/           (public assets: models, textures, etc.)
+  ├── vite.config.js    (Vite + Three.js config)
+  ├── package.json
+  └── .gitignore
+```
+
+## Final Structure
+```
+[project-name]/
+├── node_modules/
+├── src/
+│   ├── index.html
+│   ├── main.js
+│   └── style.css
+├── static/
+├── .gitignore
+├── package.json
+├── package-lock.json
+└── vite.config.js
+```
 
 ## Notes
-- This approach ensures you always get the latest Vite template and latest npm packages
-- The vite.config.js adds Three.js-specific optimizations:
-  - GLSL shader file support
-  - Auto-restart on static file changes
-  - Support for 3D assets (GLTF, GLB, HDR, EXR)
-- All other files (HTML, CSS, JS) come from Vite's vanilla template
-- You can manually update src/main.js later to include Three.js scene setup
+- Uses `npm create vite@latest` to get the latest Vite version and .gitignore
+- After generation, all Vite demo files are removed and replaced with Three.js-ready files
+- `src/main.js` includes a minimal Three.js scene with an animated red cube
+- `static/` is for public assets (3D models, textures, HDR maps, etc.)
+- GLSL shader files (`.glsl`, `.vert`, `.frag`) are supported via vite-plugin-glsl
+- Step 5 uses `2>/dev/null || true` to handle differences between Vite template versions
