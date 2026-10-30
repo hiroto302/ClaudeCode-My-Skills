@@ -16,6 +16,7 @@
 
 # Skill config (environment-specific)
 skills/sync-skills/config
+skills/xcode-adhoc-export/config.json
 
 # OS files
 .AppleDouble

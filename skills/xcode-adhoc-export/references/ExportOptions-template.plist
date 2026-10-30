@@ -9,6 +9,8 @@
     <string>manual</string>
     <key>teamID</key>
     <string>__TEAM_ID__</string>
+    <key>signingCertificate</key>
+    <string>__SIGNING_CERTIFICATE__</string>
     <key>thinning</key>
     <string>&lt;none&gt;</string>
     <key>compileBitcode</key>

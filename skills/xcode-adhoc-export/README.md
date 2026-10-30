@@ -7,8 +7,11 @@ Xcode Ad Hoc IPA export (Archive + Export) を CLI で自動化する Claude Cod
 - macOS + Xcode がインストール済み
 - CocoaPods を使用するプロジェクト（`.xcworkspace` があること）
 - Ad Hoc 用のプロビジョニングプロファイルが Mac にインストール済み
-  - `~/Library/MobileDevice/Provisioning Profiles/` に `.mobileprovision` が存在すること
+  - Xcode 16 以降: `~/Library/Developer/Xcode/UserData/Provisioning Profiles/`、
+    Xcode 15 以前: `~/Library/MobileDevice/Provisioning Profiles/` に `.mobileprovision` が存在すること (両方をスキャンする)
   - Xcode > Settings > Accounts からダウンロード可能
+- プロファイルに埋め込まれた配布証明書の秘密鍵がキーチェーンに存在すること
+  (署名証明書はプロファイルから自動検出して ExportOptions の `signingCertificate` に明示指定される)
 
 ## セットアップ
 
@@ -19,7 +22,8 @@ Xcode Ad Hoc IPA export (Archive + Export) を CLI で自動化する Claude Cod
 ```
 ~/.claude/skills/xcode-adhoc-export/
   SKILL.md
-  config.json
+  config.example.json                # config.json の雛形
+  config.json                        # 初回実行時に自動生成される (環境固有のため Git 管理外)
   README.md                          # このファイル（配置は任意）
   references/
     ExportOptions-template.plist
@@ -28,13 +32,22 @@ Xcode Ad Hoc IPA export (Archive + Export) を CLI で自動化する Claude Cod
 
 ### 2. config.json の設定
 
-IPA の出力先を指定する。未作成の場合はデフォルト値 `~/dev/ipa` が使用される。
+IPA の出力先を指定する。**初回の `/xcode-adhoc-export` 実行時に、出力先を確認したうえで自動生成される**ため、事前に作成する必要はない。
+
+手動で作成する場合は `config.example.json` をコピーして値を書き換える:
+
+```bash
+cp ~/.claude/skills/xcode-adhoc-export/config.example.json \
+   ~/.claude/skills/xcode-adhoc-export/config.json
+```
 
 ```json
 {
   "exportBasePath": "~/dev/ipa"
 }
 ```
+
+`config.json` は人ごとにパスが異なるため配布リポジトリでは `.gitignore` に含めている。
 
 ### 3. パーミッションの設定
 
@@ -82,13 +95,13 @@ Xcode プロジェクトのディレクトリで Claude Code を起動し、以�
 /xcode-adhoc-export
 ```
 
-Step 0〜9 の進捗が表示され、確認後に IPA がエクスポートされる。
+Step 0〜10 の進捗が表示され、確認後に IPA がエクスポートされる。初回実行時は Step 0 で出力先を確認する質問が表示され、`config.json` が生成される。
 
 ## 今後の改善案
 
 ### Ad Hoc プロビジョニングプロファイルの配置・参照
 
-現在はローカルの `~/Library/MobileDevice/Provisioning Profiles/` から自動検出しているが、以下の方法でさらに改善が可能:
+現在はローカルの Xcode プロファイル保存先 (UserData 配下 / MobileDevice 配下) から自動検出しているが、以下の方法でさらに改善が可能:
 
 - **references/ にプロファイルを直接配置**: `.mobileprovision` ファイルを `references/` に入れておき、チームメンバーが clone するだけでプロファイルを取得できるようにする
 - **references/ にダウンロード URL を配置**: Apple Developer Portal のプロファイル URL や社内配布サーバーの URL を記載した設定ファイルを置き、スクリプトで自動ダウンロード → インストールする
