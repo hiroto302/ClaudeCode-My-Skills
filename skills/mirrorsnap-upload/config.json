@@ -1,0 +1,16 @@
+{
+  "credentialsPath": "~/.config/mirrorsnap-distribution/env",
+  "defaultEnvironment": "test",
+  "products": {
+    "MirrorSnap": "01KNNFDF8GR32781199JWR9QJ4",
+    "MirrorSnap Pro": "01KNNFE6T5F9XSFYNQ30XEJ6B1",
+    "Photographer Snap": "01KNNFFZYBCGYNW0DA5SQ8Y3QV",
+    "RollingSnap": "01KNNFFE4NV3AB0TCDHZNFK0NH",
+    "SelfSnap": "01KNNFGG4E1938FMFTHD1W3Q2Z",
+    "SwingSnap": "01KNNFEPB6VKG6MW530BBHRWGP",
+    "Viewer": "01KNP0EC644V1MDEB0B3ZMG64D",
+    "Wall": "01KNP0EH7MFMMHNQJTKTSWQJ2V",
+    "その他": "01KNNXFFGC5CT2R9TDPDH6VN55",
+    "受託": "01KNNXD3CSEZKV473B2750E82N"
+  }
+}
