@@ -47,11 +47,14 @@ rsync -av --delete \
   --exclude='.DS_Store' \
   --exclude='*.swp' \
   --exclude='.git' \
+  --exclude='.trash' \
+  --exclude='synced' \
   ~/.claude/skills/ $REPO_DIR/skills/
 ```
 
 - `--delete` で削除されたスキルも反映する
 - `.DS_Store` などの不要ファイルは除外する
+- `.trash/`(削除したスキルの退避先)と `synced/`(claude.ai から同期されるプラグインスキル)は Claude Code が管理する内部ディレクトリなので除外する
 
 ### 2. 変更を検出する
 
